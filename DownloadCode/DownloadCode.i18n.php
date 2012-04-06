@@ -1,22 +1,12 @@
 <?php
-# Copyright (C) 2006-2012 Derrick Coetzee <dc@moonflare.com>
-# 
-# Internationalisation file for the extension DownloadCode.
-# 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or 
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-# http://www.gnu.org/copyleft/gpl.html
+/**
+ * Internationalisation file for the extension DownloadCode
+ *
+ * @file
+ * @ingroup Extensions
+ * @author Derrick Coetzee
+ * @licence
+ */
 
 $messages = array();
 
@@ -26,7 +16,7 @@ $messages['en'] = array(
 'downloadcode' => 'Download code',
 'downloadcodenoargs' => 'The download code feature allows you to automatically extract and download code from articles. Use it by clicking the "download code" tab at the top of the article, or by using a URL of the form "http://literateprograms.org/Special:Downloadcode/Article_name".',
 
-'downloadcodenopage' => 'You have attempted to access code for an article that does not exist. [[You have attempted to access code for an article that does not exist. Create this article first. If the article used to exist, it may have been deleted.',
+'downloadcodenopage' => 'You have attempted to access code for an article that does not exist. Create this article first. If the article used to exist, it may have been deleted.',
 'downloadcodenocode' => 'The article you attempted to download code for does not yet have any
 associated code files. You can add code files by adding a chunk with a name
 that looks like a filename, as in:
