@@ -1,0 +1,33 @@
+This repository hosts MediaWiki extensions (tested against version
+1.18.2) that are used to implement the special features of
+LiteratePrograms wiki, hosted at http://en.literateprograms.org/.
+
+CodeBlock: does formatting and syntax highlighting for code regions,
+including turning noweb links into anchor links between code sections.
+
+DownloadCode: Adds a "Download code" tab that can be used to weave
+together the code in an article using noweb and present it as a
+downloadable, compilable, source file. Also test-compiles the files
+to show compiler errors/warnings.
+
+ShowOnlyTo: A minor extension, used to hide certain text in pages from
+users who are not logged in.
+
+They are installed in the conventional manner, by simplying adding to
+your LocalSettings.php file:
+
+require_once( "$IP/extensions/CodeBlock/CodeBlock.php" );
+require_once( "$IP/extensions/DownloadCode/DownloadCode.php" );
+require_once( "$IP/extensions/ShowOnlyTo/ShowOnlyTo.php" );
+
+The noweb tool must be in your path. On Debian/Ubuntu systems you can
+simply do:
+
+sudo apt-get install noweb
+
+Copyright Derrick Coetzee 2006-2012. Because extensions interact
+closely with MediaWiki, and because they are based on other extensions
+and samples, I am compelled to release these extensions under the
+GNU Public License (GPL) version 2, the full text of which can be read at:
+
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
