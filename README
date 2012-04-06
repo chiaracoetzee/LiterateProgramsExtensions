@@ -19,9 +19,10 @@ your LocalSettings.php file:
 require_once( "$IP/extensions/CodeBlock/CodeBlock.php" );
 require_once( "$IP/extensions/DownloadCode/DownloadCode.php" );
 require_once( "$IP/extensions/ShowOnlyTo/ShowOnlyTo.php" );
+$wgNowebPath = "/usr/local/noweb/noweb";
 
-The noweb tool must be in your path. On Debian/Ubuntu systems you can
-simply do:
+The path to the noweb tool must be specified as above. On
+Debian/Ubuntu systems you can simply do:
 
 sudo apt-get install noweb
 
