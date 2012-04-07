@@ -19,7 +19,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # http://www.gnu.org/copyleft/gpl.html
-
 /**
  *
  * @package MediaWiki
@@ -159,6 +158,12 @@ class SpecialDownloadCode extends SpecialPage {
 		$last = null;
                 $found_result = 0;
 		while( $row = $resultset->fetchObject() ) {
+			# If it's cached and this is an If-Modified-Since request, no need to do anything
+			if ($wgOut->checkLastModified($row->rev_timestamp)) {
+			    wfDebug("DownloadCode: page/archive in cache up-to-date, page last modified " . $row->rev_timestamp . "\n");
+			    return;
+			}
+
 			if( is_null( $last ) ||
 				$last->page_namespace != $row->page_namespace ||
 				$last->page_title     != $row->page_title ) {
