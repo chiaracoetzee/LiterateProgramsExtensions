@@ -236,7 +236,6 @@ class SpecialDownloadCode extends SpecialPage {
                 foreach(split("[ \t]+", trim($sections[0])) as $extension_entry) {
                     if (count($comment_markers) == 1) {
                         $line_comment[$extension_entry] = $comment_markers[0];
-                        wfDebug($extension_entry . "\n");
                     } else if (count($comment_markers) == 2) {
                         $start_block_comment[$extension_entry] = $comment_markers[0];
                         $end_block_comment[$extension_entry] = $comment_markers[1];
