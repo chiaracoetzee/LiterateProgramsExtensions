@@ -20,11 +20,24 @@ require_once( "$IP/extensions/CodeBlock/CodeBlock.php" );
 require_once( "$IP/extensions/DownloadCode/DownloadCode.php" );
 require_once( "$IP/extensions/ShowOnlyTo/ShowOnlyTo.php" );
 $wgNowebPath = "/usr/local/noweb/noweb";
+$wgDownloadCodeBanner = false;
+$wgDownloadCodeListAlternatives = false;
 
 The path to the noweb tool must be specified as above. On
-Debian/Ubuntu systems you can simply do:
+Debian/Ubuntu systems you can install noweb with:
 
 sudo apt-get install noweb
+
+The $wgDownloadCodeBanner option causes a large banner reading
+"Download code" to be printed at the bottom of each article.  It was
+added to LiteratePrograms wiki because users were overlooking the
+Download code tab, but other sites may not want it so it's turned off
+by default.
+
+The $wgDownloadCodeListAlternatives option adds a list of links to
+other implementations in different programming languages. It assumes
+that your articles are titled in the form "Name (language)". It is
+off by default.
 
 Copyright Derrick Coetzee 2006-2012. Because extensions interact
 closely with MediaWiki, and because they are based on other extensions

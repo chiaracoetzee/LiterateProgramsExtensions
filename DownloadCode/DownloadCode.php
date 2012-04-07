@@ -37,6 +37,8 @@ $wgExtensionCredits['parserhook'][] = array(
 function wfSetupDownloadCode() {
 	global $wgDownloadCode;
 	$wgDownloadCode = new DownloadCode();
+	$wgDownloadCodeBanner = false;
+	$wgDownloadCodeListAlternatives = false;
 }
 
 class DownloadCode {
@@ -71,55 +73,71 @@ class DownloadCode {
 		return true;
 	}
 
+	function addDownloadCodeBanner($title, $oldID, &$content ) {
+		# Add download code notice to bottom
+		$titleDownloadCode = Title::makeTitle( NS_SPECIAL, "Downloadcode/" . $title->getPrefixedDbKey());
+		if ( $oldID == 0 ) {
+		    $urlDownloadCode = $titleDownloadCode->getFullURL();
+		} else {
+		    $urlDownloadCode = $titleDownloadCode->getFullURL('oldid='.$oldID);
+		}
+		$content .= "\n\n" . wfMsg('downloadcodebottom', $urlDownloadCode);
+	}
+
+	function listAlternatives( $title, &$content ) {
+		$encTitlePattern = $this->db->addQuotes( preg_replace( '/\(.*\)/', '(%)', $title->getDBKey() ) );
+		$encTitle = $this->db->addQuotes($title);
+		$res = $this->db->query("SELECT DISTINCT page_title FROM page WHERE page_title LIKE $encTitlePattern AND page_is_redirect=0 ORDER BY upper(page_title)", $fname);
+		$impl_count = 0;
+		$langNameMapping = wfMsg('languagenamemapping');
+		$linksWikitext = '';
+		$first = 0;
+		while ( $page = $this->db->fetchObject( $res ) ) {
+			if ($first == 0) {
+			    $first = 1;
+			} else {
+			    $linksWikitext .= " | ";
+			}
+			$impl_count++;
+
+			$pageTitle = Title::makeTitle($page->page_namespace, $page->page_title);
+			preg_match( '/\((.*)\)/', $pageTitle->getText(), $matches);
+			$pageProgLangText = $matches[1];
+			preg_match( '/\((.*)\)/', $pageTitle->getDBKey(), $matches);
+			$pageProgLangShortKey = $pageProgLangKey = $matches[1];
+			if (preg_match( '/^(.*)[,\/]/',$pageProgLangKey, $matches)) {
+			    $pageProgLangShortKey = $matches[1];
+			}
+			if (preg_match( '/' . $pageProgLangShortKey . ' ([^\n]*)\n/', $langNameMapping, $matches)) {
+			    $pageProgLangText = $matches[1];
+			}
+			$pageProgLangText = str_replace(' ', '&nbsp;', $pageProgLangText);
+			$linksWikitext .= '[[' . $page->page_title . '|' . $pageProgLangText . ']]';
+		}
+		$this->db->freeResult($res);
+
+		if ($impl_count > 1) {
+
+		    $content = wfMsg( 'implementationlistheader', $linksWikitext ) . "\n" . $content;
+		}
+	}
+
 	function onArticleAfterFetchContent( &$article, &$content ) {
+		global $wgDownloadCodeBanner, $wgDownloadCodeListAlternatives;
+		$request = $article->getContext()->getRequest();
+		if ($request->getVal('action') != '' &&
+		    $request->getVal('action') != 'view')
+		{
+		   	return true;
+		}
 		$title = $article->getTitle();
 		if ($title->getNamespace() == NS_MAIN) {
-			# Add download code notice to bottom
-			$titleDownloadCode = Title::makeTitle( NS_SPECIAL, "Downloadcode/" . $title->getPrefixedDbKey());
-			if ( $article->getOldID() == 0 ) {
-			    $urlDownloadCode = $titleDownloadCode->getFullURL();
-			} else {
-			    $urlDownloadCode = $titleDownloadCode->getFullURL('oldid='.$article->getOldID());
+			if ($wgDownloadCodeBanner) {
+			   	$this->addDownloadCodeBanner($title, $article->getOldID(), $content);
 			}
-			$content .= "\n\n" . wfMsg('downloadcodebottom', $urlDownloadCode);
 
-			if ( $article->getOldID() == 0 ) {
-                            # We're looking at a new revision of a main namespace article
-	                    $encTitlePattern = $this->db->addQuotes( preg_replace( '/\(.*\)/', '(%)', $title->getDBKey() ) );
-                            $encTitle = $this->db->addQuotes($title);
-                            $res = $this->db->query("SELECT DISTINCT page_title FROM page WHERE page_title LIKE $encTitlePattern AND page_is_redirect=0 ORDER BY upper(page_title)", $fname);
-                            $impl_count = 0;
-		            $langNameMapping = wfMsg('languagenamemapping');
-                            $linksWikitext = '';
-                            $first = 0;
-			    while ( $page = $this->db->fetchObject( $res ) ) {
-                                    if ($first == 0) {
-                                        $first = 1;
-                                    } else {
-                                        $linksWikitext .= " | ";
-                                    }
-                                    $impl_count++;
-                                    
-                                    $pageTitle = Title::makeTitle($page->page_namespace, $page->page_title);
-                                    preg_match( '/\((.*)\)/', $pageTitle->getText(), $matches);
-                                    $pageProgLangText = $matches[1];
-                                    preg_match( '/\((.*)\)/', $pageTitle->getDBKey(), $matches);
-                                    $pageProgLangShortKey = $pageProgLangKey = $matches[1];
-                                    if (preg_match( '/^(.*)[,\/]/',$pageProgLangKey, $matches)) {
-                                        $pageProgLangShortKey = $matches[1];
-                                    }
-                                    if (preg_match( '/' . $pageProgLangShortKey . ' ([^\n]*)\n/', $langNameMapping, $matches)) {
-                                        $pageProgLangText = $matches[1];
-                                    }
-                                    $pageProgLangText = str_replace(' ', '&nbsp;', $pageProgLangText);
-				    $linksWikitext .= '[[' . $page->page_title . '|' . $pageProgLangText . ']]';
-			    }
-			    $this->db->freeResult($res);
-
-                            if ($impl_count > 1) {
-                            
-                                $content = wfMsg( 'implementationlistheader', $linksWikitext ) . "\n" . $content;
-                            }
+			if ($wgDownloadCodeListAlternatives) {
+			   	$this->listAlternatives( $title, $content );
 			}
 		}
 		return true;
