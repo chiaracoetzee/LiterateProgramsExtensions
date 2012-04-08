@@ -48,7 +48,7 @@ class DownloadCode {
 		global $wgHooks;
 		# Hooks for pre-Vector and Vector addtabs.
 		$wgHooks['SkinTemplateNavigation'][] = $this;
-		$wgHooks['ArticleAfterFetchContent'][] = $this;
+		$wgHooks['ParserBeforeStrip'][] = $this;
 		$this->db = wfGetDB( DB_SLAVE );
 	}
 
@@ -122,22 +122,21 @@ class DownloadCode {
 		}
 	}
 
-	function onArticleAfterFetchContent( &$article, &$content ) {
-		global $wgDownloadCodeBanner, $wgDownloadCodeListAlternatives;
-		$request = $article->getContext()->getRequest();
-		if ($request->getVal('action') != '' &&
-		    $request->getVal('action') != 'view')
-		{
-		   	return true;
-		}
-		$title = $article->getTitle();
-		if ($title->getNamespace() == NS_MAIN) {
-			if ($wgDownloadCodeBanner) {
-			   	$this->addDownloadCodeBanner($title, $article->getOldID(), $content);
-			}
+	function onParserBeforeStrip( &$parser, &$text, &$strip_state ) {
+		global $wgDownloadCodeBanner, $wgDownloadCodeListAlternatives, $wgRequest;
 
-			if ($wgDownloadCodeListAlternatives) {
-			   	$this->listAlternatives( $title, $content );
+		$action = $wgRequest->getVal('action','view');
+		# This is a hack to figure out if the actual article text is being processed
+		if (($action == ('view' || 'print' || 'purge' || null)) && ($parser->getOptions()->getEnableLimitReport())) {
+			$title = $parser->getTitle();
+			if ($title->getNamespace() == NS_MAIN) {
+				if ($wgDownloadCodeBanner) {
+					$this->addDownloadCodeBanner($title, $parser->getRevisionId(), $text);
+				}
+
+				if ($wgDownloadCodeListAlternatives) {
+					$this->listAlternatives( $title, $text );
+				}
 			}
 		}
 		return true;
