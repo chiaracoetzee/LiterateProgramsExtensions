@@ -264,11 +264,22 @@ class SpecialDownloadCode extends SpecialPage {
 		if ($close_open_pos == false) break; /* Broken tag, bail */
 		$close_pos = strpos($text, '</codeblock>');
 		if ($close_pos == false) break; /* Just ignore unclosed block */
-		$code_text .= substr($text, $close_open_pos + 1, $close_pos - ($close_open_pos + 1));
+		$code_text_segment = substr($text, $close_open_pos + 1, $close_pos - ($close_open_pos + 1));
 		if ($code_text{strlen($code_text)-1} != "\n") {
-		    $code_text .= "\n";
+		    $code_text_segment .= "\n";
 		}
-		$code_text .= "@ text\n\n";
+
+		// Some codeblocks do not start with a chunk identifier
+		// such as demonstration code (discouraged but permitted).
+		// If such code contains << or >> markers it will confuse
+		// noweb. So we strip it out.
+		if (preg_match('/(<<([^>]*)>>=)/', $code_text_segment, $matches, PREG_OFFSET_CAPTURE)) {
+		    $code_text_segment = substr($code_text_segment, $matches[0][1]);
+                } else {
+		    $code_text_segment = '';
+                }
+
+		$code_text .= "$code_text_segment@ text\n\n";
 		$text = substr($text, $close_pos + 1);
 	    }
             return $code_text;
